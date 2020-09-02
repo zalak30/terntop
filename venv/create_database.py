@@ -37,4 +37,5 @@ try:
 except Exception as e:
     print(str(e))
 
+# close the connection
 obj.close()
