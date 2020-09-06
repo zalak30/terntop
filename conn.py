@@ -4,6 +4,7 @@ import credential
 
 class Connection:
     def __init__(self):
+        # connect to sql server
         try:
             self.conn = mysql.connector.connect(
                 host=credential.host,
@@ -16,7 +17,14 @@ class Connection:
         except Exception as e:
             print("Error: ", str(e))
 
+    def connect_database(self):
+        try:
+            self.cursor.execute("USE terntop")
+        except Exception as e:
+            print("Error : ", str(e))
+
     def close(self):
+        # close connection
         try:
             if self.conn.is_connected():
                 self.cursor.close()
