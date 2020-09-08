@@ -129,7 +129,11 @@ class Interns:
                 print(query)
                 self.connection.cursor.execute(query)
                 user = self.connection.cursor.fetchone()
+                print(user)
+
+                # getting needed row headers.
                 row_header = [x[0] for x in self.connection.cursor.description]
+                print(row_header)
                 payload = {'status': 200, 'data': dict(zip(row_header, user))}
                 print(payload)
                 return payload
