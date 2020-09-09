@@ -166,54 +166,41 @@ class Skills:
     def delete_skills(self, user_id, content):
         try:
             if self.exists(user_id):
-                try:
-                    skills = content['skills']
-                    # getting items in string format, will convert it into set.
-                    requested_skills = set(skills.split(','))
-                    print(requested_skills)
-                    print("requested_skills get successfully")
+                skills = content['skills']
+                # getting items in string format, will convert it into set.
+                requested_skills = set(skills.split(','))
+                print(requested_skills)
+                print("requested_skills get successfully")
 
-                    # get existing skills and from existing skills remove requested skills.
-                    existing_skills = self.current_skills(user_id)
-                    for requested_skill in requested_skills:
+                # get existing skills and from existing skills remove requested skills.
+                existing_skills = self.current_skills(user_id)
+                print("existing_skills", existing_skills)
+                for requested_skill in requested_skills:
+                    if requested_skill in existing_skills:
+                        existing_skills.remove(requested_skill)
 
-                        if requested_skill in existing_skills:
-                            existing_skills.remove(requested_skill)
+                        # to add skills in database it must be in string format.
+                        new_skills = ','.join(set(existing_skills))
+                        print("new_skills", new_skills)
+                        print("new_skills  get successfully")
 
-                        else:
-                            payload = "skill not listed"
-                            print(payload)
-                            return payload
+                        # add skills to database.
+                        query = "UPDATE interns SET" \
+                                " skills = %s" \
+                                " WHERE user_id = %s"
+                        values = (new_skills, user_id)
+                        self.connection.cursor.execute(query, values)
 
-                    # to add skills in database it must be in string format.
-                    new_skills = ','.join(set(existing_skills))
-                    print("new_skills  get successfully")
+                        payload = "skills deleted successfully", 200
+                        print(payload)
+                        return payload
 
-                    # add skills to database.
-                    query = "UPDATE interns SET" \
-                            " skills = %s" \
-                            " WHERE user_id = %s"
-                    values = (new_skills, user_id)
-                    self.connection.cursor.execute(query, values)
-
-                    payload = "skills deleted successfully", 200
-                    print(payload)
-                    return payload
-
-                except Exception as e:
-                    payload = "Error " + str(e), 500
-                    print(payload)
-                    return payload
-
+                    else:
+                        print("skill not listed")
             else:
                 payload = "user_id not exists", 200
                 print(payload)
                 return payload
-
-        except Exception as e:
-            payload = "Error " + str(e), 500
-            print(payload)
-            return payload
 
         finally:
             self.connection.conn.commit()
