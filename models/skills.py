@@ -11,7 +11,7 @@ class Skills:
         query = "SELECT user_id FROM interns WHERE user_id = '{}'".format(user_id)
         self.connection.cursor.execute(query)
         user_id = self.connection.cursor.fetchone()
-        print(user_id)
+        print("user_id : ", user_id)
 
         if user_id is None:
             return False
@@ -79,32 +79,39 @@ class Skills:
             if self.exists(user_id):
                 try:
                     skills = content['skills']
-                    # getting items in string format, will convert it into set.
-                    requested_skills = set(skills.split(','))
-                    print(requested_skills, type(requested_skills))
-                    print("requested_skills get successfully")
-
-                    # now we have only unique skills left, will convert into str.
-                    skills = ','.join(requested_skills)
-                    print("skills", skills, type(skills))
-
-                    # add skill to database
-                    query = "UPDATE interns SET" \
-                            " skills = %s" \
-                            " WHERE user_id = %s"
-                    values = (skills, user_id)
-                    self.connection.cursor.execute(query, values)
-                    payload = "skills successfully added", 200
-                    print(payload)
-                    return payload
+                    for skill in skills:
+                        length = len(skill.strip())
+                        if length == 0:
+                            payload = "skill can not be empty", 200
+                            print(payload)
+                            return payload
 
                 except Exception as e:
                     payload = "Error " + str(e), 500
                     print(payload)
                     return payload
 
+                # getting items in string format, will convert it into set.
+                requested_skills = set(skills.split(','))
+                print(requested_skills, type(requested_skills))
+                print("requested_skills get successfully")
+
+                # now we have only unique skills left, will convert into str.
+                skills = ','.join(requested_skills)
+                print("skills", skills, type(skills))
+
+                # add skill to database
+                query = "UPDATE interns SET" \
+                        " skills = %s" \
+                        " WHERE user_id = %s"
+                values = (skills, user_id)
+                self.connection.cursor.execute(query, values)
+                payload = "skills successfully added", 200
+                print(payload)
+                return payload
+
             else:
-                payload = "user_id not exists", 200
+                payload = "user_id not exists", 400
                 print(payload)
                 return payload
 
@@ -123,30 +130,37 @@ class Skills:
             if self.exists(user_id):
                 try:
                     skills = content['skills']
-                    # getting items in string format, will convert it into set.
-                    requested_skills = set(skills.split(','))
-                    print("requested_skills get successfully")
-
-                    # we have two sets one is existing skills and second is requested skills.
-                    # to add skills in database it must be in string format.
-                    new_skills = ','.join(set(self.current_skills(user_id)).union(set(requested_skills)))
-                    print("new_skills  get successfully")
-
-                    # add skills to database.
-                    query = "UPDATE interns SET" \
-                            " skills = %s" \
-                            " WHERE user_id = %s"
-                    values = (new_skills, user_id)
-                    self.connection.cursor.execute(query, values)
-
-                    payload = "skills successfully updated", 200
-                    print(payload)
-                    return payload
+                    for skill in skills:
+                        length = len(skill.strip())
+                        if length == 0:
+                            payload = "skill can not be empty", 200
+                            print(payload)
+                            return payload
 
                 except Exception as e:
                     payload = "Error " + str(e), 500
                     print(payload)
                     return payload
+
+                # getting items in string format, will convert it into set.
+                requested_skills = set(skills.split(','))
+                print("requested_skills get successfully")
+
+                # we have two sets one is existing skills and second is requested skills.
+                # to add skills in database it must be in string format.
+                new_skills = ','.join(set(self.current_skills(user_id)).union(set(requested_skills)))
+                print("new_skills  get successfully")
+
+                # add skills to database.
+                query = "UPDATE interns SET" \
+                        " skills = %s" \
+                        " WHERE user_id = %s"
+                values = (new_skills, user_id)
+                self.connection.cursor.execute(query, values)
+
+                payload = "skills successfully updated", 200
+                print(payload)
+                return payload
 
             else:
                 payload = "user_id not exists", 200
@@ -164,9 +178,22 @@ class Skills:
 
     # delete skills
     def delete_skills(self, user_id, content):
-        try:
-            if self.exists(user_id):
+        if self.exists(user_id):
+            try:
                 skills = content['skills']
+                for skill in skills:
+                    length = len(skill.strip())
+                    if length == 0:
+                        payload = "skill can not be empty", 200
+                        print(payload)
+                        return payload
+
+            except Exception as e:
+                payload = "Error " + str(e), 500
+                print(payload)
+                return payload
+
+            else:
                 # getting items in string format, will convert it into set.
                 requested_skills = set(skills.split(','))
                 print(requested_skills)
@@ -175,6 +202,7 @@ class Skills:
                 # get existing skills and from existing skills remove requested skills.
                 existing_skills = self.current_skills(user_id)
                 print("existing_skills", existing_skills)
+
                 for requested_skill in requested_skills:
                     if requested_skill in existing_skills:
                         existing_skills.remove(requested_skill)
@@ -190,18 +218,16 @@ class Skills:
                                 " WHERE user_id = %s"
                         values = (new_skills, user_id)
                         self.connection.cursor.execute(query, values)
-
                         payload = "skills deleted successfully", 200
                         print(payload)
                         return payload
 
                     else:
-                        print("skill not listed")
-            else:
-                payload = "user_id not exists", 200
-                print(payload)
-                return payload
+                        payload = "skill not listed", 404
+                        print(payload)
+                        return payload
 
-        finally:
-            self.connection.conn.commit()
-            self.connection.close()
+        else:
+            payload = "user_id not exist", 404
+            print(payload)
+            return payload
