@@ -58,6 +58,7 @@ class Interns:
 
         if self.exists(user_id):
             try:
+                email_id = content['email_id']
                 first_name = content['first_name']
                 last_name = content['last_name']
                 full_name = first_name + ' ' + last_name
@@ -75,6 +76,7 @@ class Interns:
                 return payload
 
             query = "UPDATE interns SET" \
+                    " email_id = %s," \
                     " first_name = %s," \
                     " last_name = %s," \
                     " full_name = %s," \
@@ -88,6 +90,7 @@ class Interns:
                     " WHERE user_id = %s"
 
             values = (
+                email_id,
                 first_name,
                 last_name,
                 full_name,
