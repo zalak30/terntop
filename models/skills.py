@@ -109,17 +109,16 @@ class Skills:
                 values = (skills, user_id)
                 self.connection.cursor.execute(query, values)
                 self.connection.conn.commit()
+                self.connection.close()
                 payload = "skills successfully added", 200
                 print(payload)
                 return payload
 
             except Exception as e:
+                self.connection.close()
                 payload = "Error: " + str(e), 500
                 print(payload)
                 return payload
-
-            finally:
-                self.connection.close()
 
         else:
             self.connection.close()
@@ -134,7 +133,7 @@ class Skills:
 
         if self.exists(user_id):
             if self.current_skills(user_id) is None:
-                payload = "nothing added in skills yet"
+                payload = "skills does not exist"
                 print(payload)
                 return payload
             else:
@@ -167,7 +166,7 @@ class Skills:
 
         else:
             self.connection.close()
-            payload = "'Intern not found'", 404
+            payload = "Intern not found", 404
             print(payload)
             return payload
 
@@ -215,7 +214,7 @@ class Skills:
                             self.connection.close()
 
                     else:
-                        payload = "skill not listed " + requested_skill, 404
+                        payload = "skills does not exist " + requested_skill, 404
                         print(payload)
                 return payload
 

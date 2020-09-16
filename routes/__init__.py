@@ -1,0 +1,3 @@
+from routes.intern_route import intern_route
+from routes.intern_skills_route import intern_skill_route
+from routes.intern_education_route import intern_education_route

@@ -1,7 +1,7 @@
 from flask import Flask
 from routes.intern_route import intern_route
 from routes.intern_skills_route import intern_skill_route
-
+from routes.intern_education_route import intern_education_route
 app = Flask(__name__)
 
 
@@ -14,6 +14,11 @@ def intern(user_id):
 @app.route('/intern/<user_id>/skills', methods=['GET', 'POST', 'PUT', 'DELETE'])
 def skills(user_id):
     return intern_skill_route(user_id)
+
+
+@app.route('/intern/<user_id>/education', methods=['GET', 'POST', 'PUT', 'DELETE'])
+def education(user_id):
+    return intern_education_route(user_id)
 
 
 app.run(debug=True)
