@@ -1,5 +1,6 @@
 from conn import Connection
 from datetime import datetime
+import hashlib, uuid
 
 
 class Interns:
@@ -26,8 +27,10 @@ class Interns:
 
         try:
             user_id = content['user_id']
-            pw_hash = content['pw_hash']
+            pw = content['pw']
             date_registered = datetime.now()
+            # pw to hash
+            hash_pw = hashlib.sha256(str(pw).encode('utf-8')).hexdigest()
 
             if self.exists(user_id):
                 payload = "user_id already registered", 200
@@ -36,7 +39,7 @@ class Interns:
 
             else:
                 query = "INSERT INTO interns (user_id, pw_hash, date_registered) VALUES (%s, %s, %s)"
-                values = (user_id, pw_hash, date_registered)
+                values = (user_id, hash_pw, date_registered)
                 self.connection.cursor.execute(query, values)
 
                 payload = "Intern registered successfully", 200

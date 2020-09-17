@@ -1,5 +1,6 @@
 from conn import Connection
 from models.skills import Skills
+import uuid
 
 # to check user is exists or not, import function "skill_validation" from "Skills" class
 skills = Skills()
@@ -70,28 +71,48 @@ class Education:
         #             return self.payload
 
     def add_education(self, user_id, content):
-        if self.education_validation(content):
-            return self.payload
+        # if self.education_validation(content):
+        #     return self.payload
         if skills.exists(user_id):
-            education = content['education']
-
-            # convert education dictionary to string as insert into database.
-            str_dict = str(education)
-            print("str_dict : ", str_dict)
-
-            query = "UPDATE interns SET education = %s WHERE user_id = %s"
-            values = (str_dict, user_id)
             try:
-                self.connection.cursor.execute(query, values)
-                self.connection.conn.commit()
-                self.connection.close()
-                payload = "education successfully updated", 200
-                print(payload)
-                return payload
+                type = content['type'],
+                name = content['name'],
+                year = content['year'],
+                is_completed = content['is_completed'],
+                # create unique id for each degree
+                id = uuid.uuid4().node
+
+                # my_dict = {
+                #     "type": type,
+                #     "name": name,
+                #     "year": year,
+                #     "is_completed": is_completed,
+                #     # create unique id for each degree
+                #     "id": id
+                # }
+                #
+                # # convert dictionary to string as insert into database.
+                # str_dict = str(my_dict)
+                print(type, name, year, is_completed, id)
+                return type, name, year, is_completed, id
             except Exception as e:
-                payload = "Error : " + str(e), 500
+                payload = "Error : ", str(e)
                 print(payload)
                 return payload
+
+            # query = "UPDATE interns SET education = %s WHERE user_id = %s"
+            # values = (str_dict, user_id)
+            # try:
+            #     self.connection.cursor.execute(query, values)
+            #     self.connection.conn.commit()
+            #     self.connection.close()
+            #     payload = "education successfully updated", 200
+            #     print(payload)
+            #     return payload
+            # except Exception as e:
+            #     payload = "Error : " + str(e), 500
+            #     print(payload)
+            #     return payload
 
         else:
             payload = "intern not found", 200
@@ -111,86 +132,7 @@ class Education:
         print(payload)
         return payload
 
-
 # def update_education(self, user_id, content):
 #
 
 # def delete_education(self, user_id, content):
-
-# def education_validation(content):
-#     try:
-#         education = content['education']
-#     except Exception as e:
-#         payload = "Error : " + str(e), 500
-#         print(payload)
-#         return payload
-#
-#     if type(education) is not list:
-#         payload = "education must be in list format"
-#         print(payload)
-#         return payload
-#
-#     # check dictionary is empty or not
-#     if len(education) == 0:
-#         payload = "list can not be empty", 200
-#         print(payload)
-#         return payload
-#
-#     allowed_chars = set("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_ ")
-#
-#     keys =  self.education.keys()
-#     for key in keys:
-#         length = len(key.split())
-#         if length == 0:
-#             payload = "dictionary keys can not be empty"
-#             print(payload)
-#             return payload
-#
-#         if set(str(key)).issubset(allowed_chars) is False:
-#             payload = "accept only alphanumeric and underscore(_)"
-#             print(payload)
-#             return payload
-#
-#     values =  self.education.values()
-#     for value_list in values:
-#         if type(value_list) is not list:
-#             payload = "values must be in list"
-#             print(payload)
-#             return payload
-#         for value in value_list:
-#             print(value)
-#             length = len(str(value).split())
-#             print(length)
-#             if length == 0:
-#                 payload = "dictionary values can not be empty"
-#                 print(payload)
-#                 return payload
-#             if set(str(value)).issubset(allowed_chars) is False:
-#                 payload = "accept only alphanumeric and underscore(_)"
-#                 print(payload)
-#                 return payload
-
-
-# x = {
-#     "education":
-#         [
-#             {
-#                 "type": "Bech",
-#                 "name": "in maths",
-#                 "year": [2010, 2013],
-#                 "is_completed": True,
-#                 "id": 1
-#             },
-#             {
-#                 "type": "Bech",
-#                 "name": "in maths",
-#                 "year": [2010, 2013],
-#                 "is_completed": True
-#             }
-#         ]
-# }
-# # education_validation(x)
-# for value in x.items():
-#     print(value)
-# print(x.keys())
-# print(x.values())
