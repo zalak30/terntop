@@ -13,106 +13,58 @@ class Education:
 
     def education_validation(self, content):
         try:
-            self.education = content['education']
+            self.content = content
+
+            for edu in self.content:
+                # check dictionary is empty or not
+                if not edu:
+                    self.payload = "dictionary can not be empty", 200
+                    return self.payload
+
+                if type(edu['type']) is not str:
+                    self.payload = "degree type must be string", 200
+                    return self.payload
+
+                if type(edu['name']) is not str:
+                    self.payload = "degree name must be string", 200
+                    return self.payload
+                if type(edu['is_completed']) is not bool:
+                    self.payload = "is_completed must be boolean", 200
+                    return self.payload
+                if type(edu['year']) is not list:
+                    self.payload = "degree year must be list", 200
+                    return self.payload
+                # check year is int or not
+                for year in edu['year']:
+                    if type(year) is not int:
+                        self.payload = "degree year must be int", 200
+                        return self.payload
+                    if len(edu['year']) > 2:
+                        self.payload = 'year exceeds the maximum allowed length of 2', 200
+                        return self.payload
+
         except Exception as e:
-            self.payload = "Error : " + str(e), 500
-            print(self.payload)
-            return self.payload
-
-        if type(self.education) is not list:
-            self.payload = "education must be in list format"
-            print(self.payload)
-            return self.payload
-
-        # check dictionary is empty or not
-        if len(self.education) == 0:
-            self.payload = "list can not be empty", 200
-            print(self.payload)
-            return self.payload
-
-        allowed_chars = set("0123456789abcdefghijklmnopqrstuvwxyzABCDEFGHIJKLMNOPQRSTUVWXYZ_ ")
-
-        for dict in self.education:
-            print("dic : ", dict)
-            if not dict:
-                self.payload = "dictionary keys can not be empty"
-                print(self.payload)
-                return self.payload
-            for key, value in dict.items():
-                print("key : ", key)
-                print("value : ", value)
-
-                if set(str(key)).issubset(allowed_chars) is False:
-                    self.payload = "accept only alphanumeric and underscore(_)"
-                    print(self.payload)
-                    return self.payload
-                if set(str(value)).issubset(allowed_chars) is False:
-                    self.payload = "accept only alphanumeric and underscore(_)"
-                    print(self.payload)
-                    return self.payload
-
-        # values = self.education.values()
-        # for value_list in values:
-        #     if type(value_list) is not list:
-        #         self.payload = "values must be in list"
-        #         print(self.payload)
-        #         return self.payload
-        #     for value in value_list:
-        #         print(value)
-        #         length = len(str(value).split())
-        #         print(length)
-        #         if length == 0:
-        #             self.payload = "dictionary values can not be empty"
-        #             print(self.payload)
-        #             return self.payload
-        #         if set(str(value)).issubset(allowed_chars) is False:
-        #             self.payload = "accept only alphanumeric and underscore(_)"
-        #             print(self.payload)
-        #             return self.payload
+            payload = "Error : " + str(e), 500
+            print(payload)
+            return payload
 
     def add_education(self, user_id, content):
-        # if self.education_validation(content):
-        #     return self.payload
+        if self.education_validation(content):
+            return self.payload
         if skills.exists(user_id):
-            try:
-                type = content['type'],
-                name = content['name'],
-                year = content['year'],
-                is_completed = content['is_completed'],
-                # create unique id for each degree
-                id = uuid.uuid4().node
-
-                # my_dict = {
-                #     "type": type,
-                #     "name": name,
-                #     "year": year,
-                #     "is_completed": is_completed,
-                #     # create unique id for each degree
-                #     "id": id
-                # }
-                #
-                # # convert dictionary to string as insert into database.
-                # str_dict = str(my_dict)
-                print(type, name, year, is_completed, id)
-                return type, name, year, is_completed, id
-            except Exception as e:
-                payload = "Error : ", str(e)
-                print(payload)
-                return payload
-
-            # query = "UPDATE interns SET education = %s WHERE user_id = %s"
-            # values = (str_dict, user_id)
-            # try:
-            #     self.connection.cursor.execute(query, values)
-            #     self.connection.conn.commit()
-            #     self.connection.close()
-            #     payload = "education successfully updated", 200
-            #     print(payload)
-            #     return payload
-            # except Exception as e:
-            #     payload = "Error : " + str(e), 500
-            #     print(payload)
-            #     return payload
+                query = "UPDATE interns SET education = %s WHERE user_id = %s"
+                values = (str(self.content), user_id)
+                try:
+                    self.connection.cursor.execute(query, values)
+                    self.connection.conn.commit()
+                    self.connection.close()
+                    payload = "education successfully updated", 200
+                    print(payload)
+                    return payload
+                except Exception as e:
+                    payload = "Error : " + str(e), 500
+                    print(payload)
+                    return payload
 
         else:
             payload = "intern not found", 200
@@ -136,3 +88,5 @@ class Education:
 #
 
 # def delete_education(self, user_id, content):
+#
+
